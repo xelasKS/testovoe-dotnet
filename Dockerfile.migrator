@@ -1,0 +1,11 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+WORKDIR /src
+COPY . .
+RUN dotnet tool install --global dotnet-ef --version 8.*
+ENV PATH="${PATH}:/root/.dotnet/tools"
+RUN dotnet restore ClientCommissions.Commissions/ClientCommissions.Commissions.csproj \
+ && dotnet restore ClientCommissions.Users/ClientCommissions.Users.csproj \
+ && dotnet restore ClientCommissions.Wallet/ClientCommissions.Wallet.csproj
+COPY docker/migrate.sh /usr/local/bin/migrate.sh
+RUN chmod +x /usr/local/bin/migrate.sh
+ENTRYPOINT ["/usr/local/bin/migrate.sh"]

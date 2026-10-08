@@ -1,0 +1,109 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["clientcommissions"],
+  "templating": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "ClientCommissions Pipeline",
+  "uid": "clientcommissions",
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Ingest & calculation",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cps",
+          "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "A", "expr": "rate(commissions_events_received_total[1m])", "legendFormat": "events received" },
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "B", "expr": "rate(commissions_events_duplicate_total[1m])", "legendFormat": "events duplicate" },
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "C", "expr": "rate(commissions_calculated_total[1m])", "legendFormat": "commissions calculated" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Payout pipeline",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cps",
+          "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "A", "expr": "rate(commissions_payouts_published_total[1m])", "legendFormat": "published (commissions)" },
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "B", "expr": "rate(wallet_payouts_applied_total[1m])", "legendFormat": "applied (wallet)" },
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "C", "expr": "rate(wallet_payouts_duplicate_total[1m])", "legendFormat": "duplicate (inbox)" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Totals",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "text" } },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "A", "expr": "commissions_events_received_total", "legendFormat": "events" },
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "B", "expr": "commissions_calculated_total", "legendFormat": "commissions" },
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "C", "expr": "wallet_payouts_applied_total", "legendFormat": "paid" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "HTTP request rate by service",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "refId": "A", "expr": "sum by (job) (rate(http_request_duration_seconds_count[1m]))", "legendFormat": "{{job}}" }
+      ]
+    }
+  ]
+}
